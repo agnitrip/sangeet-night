@@ -161,7 +161,8 @@ body{margin:0}[hidden]{display:none!important}
   <div class="score" id="score"></div>
   <div class="tabs" role="tablist">
     <button role="tab" id="tab-songs" aria-selected="true" data-p="songs">গান চেনো</button>
-    <button role="tab" id="tab-charades" aria-selected="false" data-p="charades">Dumb Charades</button>
+    <button role="tab" id="tab-charades" aria-selected="false" data-p="charades">Charades</button>
+    <button role="tab" id="tab-fb" aria-selected="false" data-p="fb">ফেসবুক</button>
     <button role="tab" id="tab-quiz" aria-selected="false" data-p="quiz">Quiz</button>
   </div>
 </div></header>
@@ -199,7 +200,7 @@ body{margin:0}[hidden]{display:none!important}
   </div>
 </section>
 
-<section class="panel" id="p-quiz" hidden>
+<section class="panel" id="p-fb" hidden>
   <h2>তিতিরের ফেসবুক কুইজ</h2>
   <p class="lede">Read the context, then the question and the three options. Teams answer in turn, 1 point for the right option. Reveal shows the answer and a host note to tell the story.</p>
   <div class="fb-lock" id="fb-lock">
@@ -210,8 +211,11 @@ body{margin:0}[hidden]{display:none!important}
   <div id="fb-wrap" hidden>
     <div class="list" id="fb-list"></div>
   </div>
-  <h2 class="sub-h">Your own questions</h2>
-    <p class="lede">How well do the witnesses know the bride? Add questions as the family sends them. Answers stay blurred until you reveal.</p>
+</section>
+
+<section class="panel" id="p-quiz" hidden>
+  <h2>সবার প্রশ্ন</h2>
+    <p class="lede">Questions collected from family and friends about Titir and Sayantan. Add them as people send them, one at a time or many at once. Answers stay blurred until you reveal.</p>
   <details class="bulk" id="bulk"><summary>Paste many questions</summary>
     <p class="bulk-help">Paste Muse's output. Each question starts with <b>প্রশ্ন:</b> (or Q:) and its answer with <b>উত্তর:</b> (or A:).</p>
     <textarea id="bulk-text" rows="7" placeholder="প্রশ্ন: ...&#10;উত্তর: ..."></textarea>
@@ -249,7 +253,7 @@ drawScore();
 /* Tabs */
 document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));
-  ['songs','charades','quiz'].forEach(p=>$('#p-'+p).hidden=p!==b.dataset.p);
+  ['songs','charades','fb','quiz'].forEach(p=>$('#p-'+p).hidden=p!==b.dataset.p);
   S.set('tab',b.dataset.p);window.scrollTo(0,0);
 }));
 {const t=S.get('tab','songs');const b=$('#tab-'+t);if(b)b.click()}
