@@ -98,6 +98,10 @@ form.add .row{justify-content:flex-start;margin:0}
 .nowplaying{position:sticky;top:calc(env(safe-area-inset-top,0px) + 150px);z-index:4;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;background:var(--sindoor-soft);border:1px solid var(--sindoor);border-radius:10px;padding:8px;margin-bottom:12px}
 .nowplaying .ytbox{width:128px;aspect-ratio:16/9;border-radius:6px;overflow:hidden;background:#000;max-width:100%}
 .nowplaying .ytbox.off{display:none}
+.nowplaying.ad{grid-template-columns:1fr}
+.nowplaying.ad .ytbox{width:100%}
+.adnote{display:none;font-size:13px;font-weight:700;color:var(--sindoor)}
+.nowplaying.ad .adnote{display:block}
 .nowplaying .ytbox iframe{width:100%;height:100%;border:0;display:block}
 .np-main{min-width:0;display:grid;gap:6px}
 .np-main .lbl{font-weight:700;font-size:14px}
@@ -129,7 +133,7 @@ body{margin:0}[hidden]{display:none!important}
   <h2>Gaan Cheno</h2>
   <p class="lede">Play starts the full song from the beginning, so the music comes first. Pause when the vocals start or someone shouts, then Resume to let it run on into the singing. If a video opens with a logo or dialogue, tap +5s.</p>
   <div class="nowplaying" id="np" hidden><div class="ytbox off" id="ytbox"><div id="yt"></div></div>
-    <div class="np-main"><div class="lbl" id="np-t">Playing<small></small></div>
+    <div class="np-main"><div class="adnote">Ad playing. Tap "Skip" in the video when it appears.</div><div class="lbl" id="np-t">Playing<small></small></div>
     <div class="row"><button class="btn pri" id="np-pp">Pause</button><button class="btn" id="np-ff">+5s</button><button class="btn red" id="np-stop">Stop</button></div></div></div>
   <div class="rules"><b>Scoring:</b> 1 for the song · +1 for film or singer. Wrong guess passes it to the next team. Each team picks Bangla or Bollywood for its turn; a Bangla song earns 1 bonus point.</div>
   <div class="pool" role="group" aria-label="Song pool"><button class="btn" id="pool-bangla" data-pool="bangla">বাংলা · Bangla</button><button class="btn" id="pool-bolly" data-pool="bolly">Bollywood</button></div>
@@ -220,10 +224,15 @@ window.onYouTubeIframeAPIReady=function(){
 const YT_API={get Player(){return window.YT.Player}};
 let playingTitle=null,playingIdSave=null;
 function label(){return (playingId[0]==='s'?'Bangla':'Bollywood')+' #'+playingId.slice(1)}
-function stopAll(keepId){try{player.pause()}catch(e){}try{ytPlayer&&ytReady&&ytPlayer.stopVideo()}catch(e){}isPlaying=false;if(!keepId){playingId=null;mode=null}}
+function stopAll(keepId){clearInterval(adTimer);setAd(false);try{player.pause()}catch(e){}try{ytPlayer&&ytReady&&ytPlayer.stopVideo()}catch(e){}isPlaying=false;if(!keepId){playingId=null;mode=null}}
 function startClip(id,t){mode='clip';playingId=id;playingTitle=t;player.src=previews[t];player.currentTime=0;player.play().catch(()=>{});$('#ytbox').classList.add('off');$('#np-t').firstChild.textContent='Playing '+label();$('#np-t').querySelector('small').textContent='30-second clip';paintNP()}
+let adTimer=null;
+function setAd(on){$('#np').classList.toggle('ad',on);if(ytPlayer&&ytReady){const w=on?Math.min(560,$('#np').clientWidth-16):128;ytPlayer.setSize(w,Math.round(w*9/16))}}
+function watchAd(){clearInterval(adTimer);let n=0;adTimer=setInterval(()=>{n++;if(mode!=='yt'||!ytReady||n>240){clearInterval(adTimer);setAd(false);return}
+  const st=ytPlayer.getPlayerState();if(st===1){setAd(false);clearInterval(adTimer);return}
+  if(st===-1&&ytPlayer.getCurrentTime()>0.4)setAd(true)},500)}
 function startYT(id,t){mode='yt';playingId=id;playingTitle=t;playingIdSave=id;$('#ytbox').classList.remove('off');$('#np-t').firstChild.textContent='Playing '+label();$('#np-t').querySelector('small').textContent='Full song from the start';
-  if(ytReady)ytPlayer.loadVideoById(YTID[t]);else pendingYT=YTID[t];isPlaying=true;paintNP()}
+  if(ytReady)ytPlayer.loadVideoById(YTID[t]);else pendingYT=YTID[t];isPlaying=true;paintNP();watchAd()}
 function playSong(id,t){
   if(playingId===id){togglePause();return}
   stopAll();
