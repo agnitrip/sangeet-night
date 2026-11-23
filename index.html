@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Titir's Sangeet Host</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Galada&family=Hind+Siliguri:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: sticky 2–4 team scoreboard band, tab bar, one round per tab. Laal-paar: white ground, sindoor red border, marigold for actions. */
+:root{
+  --bg:#fdfbf8; --surface:#ffffff; --fg:#2a1414; --muted:#7a5f5c; --line:#ecdcd8;
+  --sindoor:#b3121f; --sindoor-soft:#fbe9ea; --marigold:#e8930c; --marigold-soft:#fff3dc;
+  --bangal:#0f6e5a; --bangal-soft:#e2f3ee; --t3:#5b3fa8; --t3-soft:#ece6fb; --t4:#1f5fae; --t4-soft:#e3edfa; --ghoti:#a5501a; --ghoti-soft:#fbeadd;
+  --display:"Galada","Hind Siliguri",Georgia,serif; --body:"Hind Siliguri",system-ui,-apple-system,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#1a1112; --surface:#241819; --fg:#f6e9e6; --muted:#c2a7a3; --line:#3e2a2b;
+  --sindoor:#ff5a63; --sindoor-soft:#3a1b1e; --marigold:#ffb43d; --marigold-soft:#3a2a12;
+  --bangal:#4fd1b0; --bangal-soft:#13302a; --t3:#b9a3ff; --t3-soft:#2a2240; --t4:#86b8ff; --t4-soft:#16263d; --ghoti:#f39a5c; --ghoti-soft:#3a2416; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1a1112; --surface:#241819; --fg:#f6e9e6; --muted:#c2a7a3; --line:#3e2a2b;
+  --sindoor:#ff5a63; --sindoor-soft:#3a1b1e; --marigold:#ffb43d; --marigold-soft:#3a2a12;
+  --bangal:#4fd1b0; --bangal-soft:#13302a; --t3:#b9a3ff; --t3-soft:#2a2240; --t4:#86b8ff; --t4-soft:#16263d; --ghoti:#f39a5c; --ghoti-soft:#3a2416; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.45}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--sindoor)}
+.wrap{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:4px solid var(--sindoor);padding-block:10px 8px}
+.brand{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.brand h1{font-family:var(--display);font-weight:400;font-size:26px;margin:0;color:var(--sindoor);line-height:1.1}
+.brand small{color:var(--muted);font-size:13px}
+.teamsbar{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13px;color:var(--muted);font-weight:600}
+.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:var(--surface);color:var(--fg);font:700 14px var(--body);padding:5px 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--sindoor);color:#fff}
+.teamsbar .btn{margin-left:auto;padding:6px 12px;font-size:13px;border-color:var(--sindoor);color:var(--sindoor)}
+.teamsbar .btn.armed{background:var(--sindoor);color:#fff}
+.score{display:grid;gap:6px;margin-top:8px}
+.team{border-radius:10px;padding:6px 8px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:4px;color:var(--tc);background:var(--ts)}
+.team .nm{grid-column:1/-1;font-weight:700;font-size:13px;text-align:center;line-height:1.1}
+.team .pts{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;text-align:center;line-height:1}
+.team button{border:1px solid currentColor;background:transparent;color:inherit;border-radius:8px;width:30px;height:30px;font-size:17px;font-weight:700;cursor:pointer;padding:0}
+.score.compact .team{grid-template-columns:1fr 1fr;padding:6px}
+.score.compact .pts{grid-column:1/-1;font-size:26px}
+.score.compact .team button{width:100%;height:28px}
+.team{min-width:0}
+.t1{--tc:var(--bangal);--ts:var(--bangal-soft)}.t2{--tc:var(--ghoti);--ts:var(--ghoti-soft)}.t3{--tc:var(--t3);--ts:var(--t3-soft)}.t4{--tc:var(--t4);--ts:var(--t4-soft)}
+.tabs{display:flex;gap:6px;margin-top:8px;overflow-x:auto}
+.tabs button{flex:1 0 auto;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:7px 14px;font:600 14px var(--body);cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--sindoor);border-color:var(--sindoor);color:#fff}
+section.panel{padding-top:16px}
+h2{font-family:var(--display);font-weight:400;font-size:30px;margin:0;color:var(--sindoor);text-wrap:balance}
+.lede{color:var(--muted);margin:4px 0 14px;max-width:62ch}
+.rules{background:var(--marigold-soft);border-radius:10px;padding:10px 12px;font-size:14px;margin-bottom:14px}
+.rules b{color:var(--fg)}
+.era{margin:18px 0 8px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.list{display:grid;gap:8px}
+.song{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}
+.song.done{opacity:.55}
+.num{font-variant-numeric:tabular-nums;color:var(--muted);font-weight:700;width:2.2ch}
+.ans{min-width:0}
+.ans .t{font-weight:700}
+.ans .h{color:var(--muted);font-size:14px}
+.ans.hid .t,.ans.hid .h{filter:blur(7px);user-select:none}
+.acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:8px;padding:6px 10px;font:600 13px var(--body);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap}
+.btn.pri{background:var(--marigold);border-color:var(--marigold);color:#2a1414}
+.btn.red{background:var(--sindoor);border-color:var(--sindoor);color:#fff}
+.btn:focus-visible,.tabs button:focus-visible,.team button:focus-visible,.seg button:focus-visible{outline:3px solid var(--marigold);outline-offset:2px}
+.piles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pile{border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;font:600 15px var(--body);color:var(--fg)}
+.pile small{display:block;color:var(--muted);font-weight:500;font-size:12px;margin-top:2px}
+.pile[aria-pressed="true"]{border-color:var(--sindoor);background:var(--sindoor-soft)}
+.card{margin-top:14px;background:var(--surface);border:2px solid var(--sindoor);border-radius:14px;padding:18px 16px;text-align:center}
+.card .cat{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.card .word{font-size:32px;font-weight:700;line-height:1.15;margin:8px 0 4px;text-wrap:balance}
+.card .word.hid{filter:blur(12px);user-select:none}
+.card .mean{color:var(--muted);font-size:15px;min-height:1.4em}
+.timer{font-size:44px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--sindoor);margin:10px 0 6px}
+.timer.low{color:var(--marigold)}
+.row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+.row .btn{padding:9px 14px;font-size:14px}
+.meta{color:var(--muted);font-size:13px;margin-top:10px}
+form.add{display:grid;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:14px}
+form.add input{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 10px;font:15px var(--body);background:var(--bg);color:var(--fg)}
+form.add .row{justify-content:flex-start;margin:0}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.q .qt{font-weight:600}
+.q .qa{color:var(--bangal);font-weight:700;margin-top:4px}
+.q .qa.hid{filter:blur(7px);user-select:none}
+.q .acts{justify-content:flex-start;margin-top:8px}
+.empty{color:var(--muted);text-align:center;padding:18px;border:1px dashed var(--line);border-radius:10px}
+.pool{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}
+.pool .btn{justify-content:center;padding:10px;font-size:15px}
+.pool .btn[aria-pressed="true"]{background:var(--sindoor);border-color:var(--sindoor);color:#fff}
+.nowplaying{position:sticky;top:calc(env(safe-area-inset-top,0px) + 150px);z-index:4;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;background:var(--sindoor-soft);border:1px solid var(--sindoor);border-radius:10px;padding:8px;margin-bottom:12px}
+.nowplaying .ytbox{width:128px;aspect-ratio:16/9;border-radius:6px;overflow:hidden;background:#000;max-width:100%}
+.nowplaying .ytbox.off{display:none}
+.nowplaying .ytbox iframe{width:100%;height:100%;border:0;display:block}
+.np-main{min-width:0;display:grid;gap:6px}
+.np-main .lbl{font-weight:700;font-size:14px}
+.np-main .lbl small{display:block;font-weight:500;color:var(--muted);font-size:12px}
+.np-main .row{justify-content:flex-start;margin:0;gap:6px}
+.np-main .row .btn{padding:8px 12px;font-size:14px;min-height:40px}
+.song.playing{border-color:var(--sindoor);box-shadow:0 0 0 2px var(--sindoor-soft)}
+.ex{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--marigold);margin-left:6px}
+@media (max-width:480px){.song .acts .btn{min-height:40px;padding:8px 14px;font-size:14px}.seg button{padding:8px 14px}.team button{height:36px}.song{grid-template-columns:auto 1fr}.song .acts{grid-column:1/-1;justify-content:flex-start}.card .word{font-size:26px}.brand h1{font-size:22px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+body{margin:0}[hidden]{display:none!important}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="wrap" style="padding-bottom:0">
+  <div class="brand"><h1>তিতিরের সঙ্গীত · Titir's Sangeet</h1><small>Mon 23 Nov · 6:30–8:30 pm</small></div>
+  <div class="teamsbar"><span>Teams</span><div class="seg" id="nteams"><button data-n="2">2</button><button data-n="3">3</button><button data-n="4">4</button></div><button class="btn" id="reset">Start over</button></div>
+  <div class="score" id="score"></div>
+  <div class="tabs" role="tablist">
+    <button role="tab" id="tab-songs" aria-selected="true" data-p="songs">গান চেনো</button>
+    <button role="tab" id="tab-charades" aria-selected="false" data-p="charades">Dumb Charades</button>
+    <button role="tab" id="tab-quiz" aria-selected="false" data-p="quiz">Quiz</button>
+  </div>
+</div></header>
+
+<main class="wrap">
+<section class="panel" id="p-songs">
+  <h2>Gaan Cheno</h2>
+  <p class="lede">Play starts the full song from the beginning, so the music comes first. Pause when the vocals start or someone shouts, then Resume to let it run on into the singing. If a video opens with a logo or dialogue, tap +5s.</p>
+  <div class="nowplaying" id="np" hidden><div class="ytbox off" id="ytbox"><div id="yt"></div></div>
+    <div class="np-main"><div class="lbl" id="np-t">Playing<small></small></div>
+    <div class="row"><button class="btn pri" id="np-pp">Pause</button><button class="btn" id="np-ff">+5s</button><button class="btn red" id="np-stop">Stop</button></div></div></div>
+  <div class="rules"><b>Scoring:</b> 1 for the song · +1 for film or singer. Wrong guess passes it to the next team. Each team picks Bangla or Bollywood for its turn; a Bangla song earns 1 bonus point.</div>
+  <div class="pool" role="group" aria-label="Song pool"><button class="btn" id="pool-bangla" data-pool="bangla">বাংলা · Bangla</button><button class="btn" id="pool-bolly" data-pool="bolly">Bollywood</button></div>
+  <div id="songs"></div>
+</section>
+
+<section class="panel" id="p-charades" hidden>
+  <h2>Dumb Charades</h2>
+  <p class="lede">The actor's team picks a pile. Only the actor sees the card. 60 seconds, no sounds, no lip-syncing.</p>
+  <div class="rules"><b>Points:</b> Films 1 · Khabar &amp; Biye 2 · Probad (proverbs) 3. Opponents can steal a Probad with one guess when time runs out.</div>
+  <div class="piles" id="piles"></div>
+  <div class="card" id="card">
+    <div class="cat" id="c-cat">Pick a pile</div>
+    <div class="word" id="c-word">—</div>
+    <div class="mean" id="c-mean"></div>
+    <div class="timer" id="c-timer">1:00</div>
+    <div class="row">
+      <button class="btn" id="c-show">Hide card</button>
+      <button class="btn pri" id="c-start">Start 60s</button>
+      <button class="btn" id="c-next">Next card</button>
+    </div>
+    <div class="meta" id="c-left"></div>
+  </div>
+</section>
+
+<section class="panel" id="p-quiz" hidden>
+  <h2>Background Check</h2>
+  <p class="lede">How well do the witnesses know the bride? Add questions as the family sends them. Answers stay blurred until you reveal.</p>
+  <form class="add" id="q-form">
+    <input id="q-text" placeholder="Question, e.g. What was Titir's first job?" autocomplete="off">
+    <input id="q-ans" placeholder="Answer" autocomplete="off">
+    <div class="row"><button class="btn red" type="submit">Add question</button></div>
+  </form>
+  <div class="list" id="q-list"></div>
+</section>
+</main>
+
+<script>
+const S={get(k,d){try{const v=localStorage.getItem('ts_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('ts_'+k,JSON.stringify(v))}catch(e){}}};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* Scoreboard */
+let nTeams=S.get('nTeams',2),score=S.get('scores',[0,0,0,0]),resetArmed=null;
+function drawScore(){
+  document.querySelectorAll('#nteams button').forEach(b=>b.setAttribute('aria-pressed',Number(b.dataset.n)===nTeams));
+  $('#score').style.gridTemplateColumns='repeat('+nTeams+',minmax(0,1fr))';$('#score').classList.toggle('compact',nTeams>2);
+  let h='';for(let i=0;i<nTeams;i++)h+=`<div class="team t${i+1}"><div class="nm">Team ${i+1}</div>${nTeams>2?`<div class="pts">${score[i]}</div><button data-t="${i}" data-d="-1" aria-label="Team ${i+1} minus one">−</button>`:`<button data-t="${i}" data-d="-1" aria-label="Team ${i+1} minus one">−</button><div class="pts">${score[i]}</div>`}<button data-t="${i}" data-d="1" aria-label="Team ${i+1} plus one">+</button></div>`;
+  $('#score').innerHTML=h;
+}
+$('#score').addEventListener('click',e=>{const b=e.target.closest('button[data-t]');if(!b)return;const i=Number(b.dataset.t);score[i]=Math.max(0,score[i]+Number(b.dataset.d));S.set('scores',score);drawScore()});
+$('#nteams').addEventListener('click',e=>{const b=e.target.closest('button[data-n]');if(!b)return;nTeams=Number(b.dataset.n);S.set('nTeams',nTeams);drawScore()});
+$('#reset').addEventListener('click',()=>{
+  if(!resetArmed){$('#reset').textContent='Tap again to clear all';$('#reset').classList.add('armed');resetArmed=setTimeout(()=>{resetArmed=null;$('#reset').textContent='Start over';$('#reset').classList.remove('armed')},3500);return}
+  clearTimeout(resetArmed);resetArmed=null;$('#reset').classList.remove('armed');startOver();$('#reset').textContent='Cleared';setTimeout(()=>{$('#reset').textContent='Start over'},1500)});
+drawScore();
+
+/* Tabs */
+document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  ['songs','charades','quiz'].forEach(p=>$('#p-'+p).hidden=p!==b.dataset.p);
+  S.set('tab',b.dataset.p);window.scrollTo(0,0);
+}));
+{const t=S.get('tab','songs');const b=$('#tab-'+t);if(b)b.click()}
+
+/* Gaan Cheno */
+const BOLLY=[["90s & earlier", [["Ek Do Teen", "Tezaab"], ["Hawa Hawai", "Mr. India"], ["Pehla Nasha", "Jo Jeeta Wohi Sikandar"], ["Didi Tera Devar Deewana", "Hum Aapke Hain Koun"], ["Tujhe Dekha To", "DDLJ"], ["Chaiyya Chaiyya", "Dil Se.."]]], ["2000s", [["Bole Chudiyan", "Kabhi Khushi Kabhie Gham"], ["Kal Ho Naa Ho", "Kal Ho Naa Ho"], ["Kajra Re", "Bunty Aur Babli"], ["Mauja Hi Mauja", "Jab We Met"], ["Desi Girl", "Dostana"], ["Tujh Mein Rab Dikhta Hai", "Rab Ne Bana Di Jodi"], ["Jai Ho", "Slumdog Millionaire"], ["Sheila Ki Jawani", "Tees Maar Khan"]]], ["2010s", [["Señorita", "Zindagi Na Milegi Dobara"], ["Badtameez Dil", "Yeh Jawaani Hai Deewani"], ["Balam Pichkari", "Yeh Jawaani Hai Deewani"], ["Tum Hi Ho", "Aashiqui 2"], ["Lungi Dance", "Chennai Express"], ["Nagada Sang Dhol", "Ram-Leela"], ["London Thumakda", "Queen"], ["Gallan Goodiyaan", "Dil Dhadakne Do"], ["Gerua", "Dilwale"], ["Kala Chashma", "Baar Baar Dekho"], ["Channa Mereya", "Ae Dil Hai Mushkil"]]], ["2020s", [["Raataan Lambiyan", "Shershaah"], ["Kesariya", "Brahmastra"], ["Jhoome Jo Pathaan", "Pathaan"], ["What Jhumka?", "Rocky Aur Rani"], ["Chaleya", "Jawan"]]]];
+const SONGS=[["Golden era", [["Ei Poth Jodi Na Shesh Hoy", "Saptapadi (1961) · Hemanta & Sandhya Mukherjee"], ["Ei Sundar Swarnali Sandhyay", "Hospital (1960) · Geeta Dutt"], ["Shing Nei Tobu Naam Tar Singho", "Lukochuri (1958) · Kishore Kumar"], ["Ke Prothom Kachhe Esechhi", "Shankhabela (1966) · Manna Dey & Lata Mangeshkar"], ["Coffee Houser Sei Addata", "Manna Dey · non-film"], ["Ami Shri Shri Bhojohori Manna", "Manna Dey · non-film"], ["Ei Raat Tomar Amar", "Deep Jwele Jai (1959) · Hemanta Mukherjee"], ["Tumi Je Amar", "Harano Sur (1957) · Geeta Dutt"], ["Gaane Mor Kon Indradhanu", "Agnipariksha (1954) · Sandhya Mukherjee"], ["Ei Meghla Dine Ekla", "Shes Parjyanta (1960) · Hemanta Mukherjee"], ["Muchhe Jaoa Dinguli", "Hemanta Mukherjee"], ["Jibone Ki Pabo Na", "Teen Bhubaner Pare (1969) · Manna Dey"], ["Ei Kule Ami Aar Oi Kule Tumi", "Manna Dey"], ["Sundari Go Dohai Dohai", "Sabai To Sukhi Hotey Chai · Manna Dey"], ["Aamar Pujar Phool", "Kishore Kumar"], ["Sei Raate Raat Chhilo Purnima", "Kishore Kumar"], ["Aaj Ei Dintake", "Kishore Kumar · Bappi Lahiri"], ["Chirodini Tumi Je Amar", "Amar Sangi (1987) · Kishore Kumar · Bappi Lahiri"]]], ["Rabindrasangeet", [["Purano Sei Diner Kotha", "Rabindrasangeet · Hemanta Mukherjee"], ["Phoole Phoole Dhole Dhole", "Rabindrasangeet"], ["Pagla Hawar Badol Dine", "Rabindrasangeet"], ["Tumi Robe Nirobe", "Rabindrasangeet"], ["Aaji Jhoro Jhoro Mukhoro Badoro Dine", "Rabindrasangeet"], ["Ami Chini Go Chini Tomare", "Rabindrasangeet · Charulata (1964) · Kishore Kumar"], ["Akash Bhora Surjo Tara", "Rabindrasangeet"], ["Bhalobashi Bhalobashi", "Rabindrasangeet"], ["Majhe Majhe Tobo Dekha Pai", "Rabindrasangeet"], ["Amar Bela Je Jay", "Rabindrasangeet"]]], ["Bangla band & Jibonmukhi", [["Ami Banglay Gaan Gai", "Pratul Mukhopadhyay"], ["Tomake Chai", "Kabir Suman"], ["Tumi Ashbe Bole", "Nachiketa"], ["Ranjana Ami Ar Ashbona", "Anjan Dutt"], ["Hasnuhana", "Fossils · Rupam Islam"], ["Bhindeshi Tara", "Chandrabindoo"], ["Barandaye Roddur", "Bhoomi"], ["Holud Pakhi", "Cactus"]]], ["Modern Tolly", [["Amake Amar Moto Thakte Dao", "Autograph (2010) · Anupam Roy"], ["Bariye Dao Tomar Haat", "Chotushkone (2014) · Anupam Roy"], ["Tumi Jake Bhalobasho", "Praktan (2016) · Iman Chakraborty"], ["Bojhena Shey Bojhena", "Bojhena Shey Bojhena (2012) · Arijit Singh"], ["Mon Majhi Re", "Boss (2013) · Arijit Singh"], ["Mon Mane Na", "Mon Mane Na (2008) · Zubeen Garg & June Banerjee"], ["Prem Ki Bujhini", "Paglu (2011) · Zubeen Garg & Akriti Kakkar"], ["Ki Kore Toke Bolbo", "Rangbaaz (2013) · Arijit Singh"], ["Aami Tomar Kache", "Yoddha · Arijit Singh"], ["Egiye De", "Shudhu Tomari Jonyo (2015) · Arijit Singh"], ["Boba Tunnel", "Chotushkone (2014) · Anupam Roy"], ["Bawshonto Eshe Geche", "Chotushkone (2014) · Anupam Roy"], ["Dhak Baja Kashor Baja", "Shreya Ghoshal · Jeet Gannguli (2016)"], ["Bhalobashar Morshum", "X=Prem (2022) · Arijit Singh & Shreya Ghoshal"], ["Bolte Bolte Cholte Cholte", "Imran (2010)"], ["Jao Pakhi Bolo Tare", "Monpura (2009) · Krishnokoli"]]], ["Bollywood, Bengali connection", [["Ami Je Tomar", "Bhool Bhulaiyaa 2 (2022) · Arijit Singh & Shreya Ghoshal · Pritam"], ["Piyu Bole", "Parineeta (2005) · Shantanu Moitra"], ["Dola Re Dola", "Devdas (2002)"], ["Ekla Cholo Re", "Kahaani (2012) · Amitabh Bachchan · Tagore"], ["Mere Sapno Ki Rani", "Aradhana (1969) · Kishore Kumar · S.D. Burman"], ["Journey Song", "Piku (2015) · Anupam Roy"], ["Ala Barfi", "Barfi! (2012) · Pritam"]]], ["Biye special", [["Lila Bali Lila Bali", "Traditional Bengali wedding song"], ["Bhromor Koio Giya", "Bengali folk"], ["Sohag Chand Bodoni", "Bengali wedding folk song"], ["Holud Bato Mendi Bato", "Gaye holud song"], ["Milon Hobe Koto Dine", "Lalon geeti"], ["Tomay Hrid Majhare Rakhbo", "Bengali folk"]]]];
+// iTunes track ids for 30-second previews (checked against film/artist on 2026-11-23)
+const ITUNES={"Ei Poth Jodi Na Shesh Hoy": 1344264349, "Ei Sundar Swarnali Sandhyay": 1340794781, "Shing Nei Tobu Naam Tar Singho": 1436479719, "Ke Prothom Kachhe Esechhi": 1360790583, "Coffee Houser Sei Addata": 1424305771, "Purano Sei Diner Kotha": 1412111947, "Phoole Phoole Dhole Dhole": 1538434106, "Pagla Hawar Badol Dine": 1492704299, "Tumi Robe Nirobe": 983186109, "Aaji Jhoro Jhoro Mukhoro Badoro Dine": 6774420638, "Amake Amar Moto Thakte Dao": 1631500849, "Tumi Jake Bhalobasho": 1476611179, "Bojhena Shey Bojhena": 1631505211, "Mon Majhi Re": 1194124069, "Ami Je Tomar": 1625856211, "Piyu Bole": 1529529186, "Dola Re Dola": 1442398478, "Ekla Cholo Re": 1117379694, "Mere Sapno Ki Rani": 1338718015, "Journey Song": 1529530609, "Ala Barfi": 554641157, "Lila Bali Lila Bali": 995230805, "Bhromor Koio Giya": 1676534119, "Ek Do Teen": 1117379334, "Hawa Hawai": 1151397900, "Pehla Nasha": 1340749968, "Didi Tera Devar Deewana": 1641853013, "Tujhe Dekha To": 1352484512, "Chaiyya Chaiyya": 1130322151, "Bole Chudiyan": 300388195, "Kal Ho Naa Ho": 300388792, "Kajra Re": 673539855, "Mauja Hi Mauja": 1134725346, "Desi Girl": 293939865, "Tujh Mein Rab Dikhta Hai": 673596462, "Jai Ho": 1358474690, "Sheila Ki Jawani": 1123140184, "Señorita": 1116365492, "Badtameez Dil": 1070912803, "Balam Pichkari": 1070912810, "Tum Hi Ho": 1073359419, "Lungi Dance": 6778826690, "Nagada Sang Dhol": 1842063594, "London Thumakda": 1116194835, "Gallan Goodiyaan": 1071192712, "Gerua": 1057567670, "Kala Chashma": 1777373844, "Channa Mereya": 1169015785, "Raataan Lambiyan": 1580955743, "Kesariya": 1635014240, "Jhoome Jo Pathaan": 1659644978, "What Jhumka?": 1746500878, "Chaleya": 1702461667, "Ei Raat Tomar Amar": 1625064317, "Tumi Je Amar": 1387769554, "Gaane Mor Kon Indradhanu": 1329148176, "Ei Meghla Dine Ekla": 1436390893, "Muchhe Jaoa Dinguli": 1436479717, "Jibone Ki Pabo Na": 1680901925, "Ei Kule Ami Aar Oi Kule Tumi": 1412638338, "Sundari Go Dohai Dohai": 1396421861, "Aamar Pujar Phool": 1532588848, "Sei Raate Raat Chhilo Purnima": 1347315276, "Aaj Ei Dintake": 1338724592, "Chirodini Tumi Je Amar": 1154592164, "Ami Chini Go Chini Tomare": 1382820920, "Akash Bhora Surjo Tara": 538724548, "Bhalobashi Bhalobashi": 65640571, "Majhe Majhe Tobo Dekha Pai": 1032241160, "Amar Bela Je Jay": 1532579028, "Ami Banglay Gaan Gai": 1649558753, "Tomake Chai": 1328435354, "Tumi Ashbe Bole": 1707212237, "Ranjana Ami Ar Ashbona": 1431704979, "Hasnuhana": 1019491726, "Bhindeshi Tara": 1015966990, "Barandaye Roddur": 1424286241, "Holud Pakhi": 1347314716, "Mon Mane Na": 1752665258, "Prem Ki Bujhini": 1752665775, "Ki Kore Toke Bolbo": 1752665431, "Aami Tomar Kache": 1631512479, "Egiye De": 1631821322, "Boba Tunnel": 1190338849, "Bawshonto Eshe Geche": 1190338850, "Dhak Baja Kashor Baja": 1163544301, "Bhalobashar Morshum": 1639961168, "Bolte Bolte Cholte Cholte": 1029335840, "Jao Pakhi Bolo Tare": 1629508006, "Sohag Chand Bodoni": 6779585466, "Holud Bato Mendi Bato": 1564925916, "Milon Hobe Koto Dine": 1580992184, "Tomay Hrid Majhare Rakhbo": 1541294595};
+const YTID={"Ei Poth Jodi Na Shesh Hoy": "kBbLPwPZ3Oc", "Ei Sundar Swarnali Sandhyay": "rQTNnP0EAA4", "Shing Nei Tobu Naam Tar Singho": "TMD6tSpqck0", "Ke Prothom Kachhe Esechhi": "_c-_9olemeA", "Coffee Houser Sei Addata": "yYKHuW_FS_U", "Ami Shri Shri Bhojohori Manna": "GafQ7BHXLd4", "Ei Raat Tomar Amar": "hBquaK_NT44", "Tumi Je Amar": "iVPwTu8Zxfs", "Gaane Mor Kon Indradhanu": "l3BQ4dYWDQ4", "Ei Meghla Dine Ekla": "aFEPYpcmkEM", "Muchhe Jaoa Dinguli": "cUBxx0V9R_k", "Jibone Ki Pabo Na": "CAAPH9mSTT0", "Ei Kule Ami Aar Oi Kule Tumi": "YnyY-0DSgqc", "Sundari Go Dohai Dohai": "JAPjD_uZki8", "Aamar Pujar Phool": "vn4sqQ0mWWQ", "Sei Raate Raat Chhilo Purnima": "9pUlQdOoIds", "Aaj Ei Dintake": "qsYC7klJrnA", "Chirodini Tumi Je Amar": "laSzGk7VJ94", "Purano Sei Diner Kotha": "Q2aPJT1Ex0k", "Phoole Phoole Dhole Dhole": "suMXzBrAHEM", "Pagla Hawar Badol Dine": "dlHi2PdIhZQ", "Tumi Robe Nirobe": "zi-GP5jXHlw", "Aaji Jhoro Jhoro Mukhoro Badoro Dine": "otHJCUAHUY0", "Ami Chini Go Chini Tomare": "nT4P5YcYGSc", "Akash Bhora Surjo Tara": "YhJtG9sw9n0", "Bhalobashi Bhalobashi": "CwCG00-2xIA", "Majhe Majhe Tobo Dekha Pai": "nEYxMY3-MeY", "Amar Bela Je Jay": "5G6eKp0QhKo", "Ami Banglay Gaan Gai": "jTDZVq5kxvU", "Tomake Chai": "JZ1CReueASQ", "Ranjana Ami Ar Ashbona": "tbi2eYL89Uk", "Hasnuhana": "OERD-4VV57s", "Bhindeshi Tara": "B0ECFWqrJSQ", "Barandaye Roddur": "qCNvhcLyM84", "Holud Pakhi": "fpMH2DW_lmM", "Amake Amar Moto Thakte Dao": "HiqKKznBfnM", "Bariye Dao Tomar Haat": "9_Cqt_PiVVg", "Tumi Jake Bhalobasho": "jRY4m2IR4f8", "Bojhena Shey Bojhena": "_yXoQoWyGm8", "Mon Majhi Re": "weRQuOu0UXc", "Mon Mane Na": "oWEu9_8Yawk", "Prem Ki Bujhini": "aTXGfoduV5E", "Ki Kore Toke Bolbo": "1I3j70U5AwI", "Aami Tomar Kache": "u_4BBFxp7Rs", "Egiye De": "6rOCiszTz-I", "Boba Tunnel": "pLrk4OIqPPo", "Bawshonto Eshe Geche": "nZTI_IknIHE", "Dhak Baja Kashor Baja": "9Hmp6u1cx3I", "Bhalobashar Morshum": "f6-FZFqmZgI", "Bolte Bolte Cholte Cholte": "wU3HMpt-pKk", "Jao Pakhi Bolo Tare": "5EoGqaTOyJ8", "Ami Je Tomar": "q3nIItk0-wU", "Piyu Bole": "JZ0zD23Wq9E", "Dola Re Dola": "D_6xDvtr1gw", "Ekla Cholo Re": "-d9QOzkxMKU", "Mere Sapno Ki Rani": "Nw7lcCNSYy8", "Journey Song": "oZ7PnR_ZKRE", "Ala Barfi": "2wKT2er-tVo", "Lila Bali Lila Bali": "Ju_8vG7HXH4", "Bhromor Koio Giya": "wIf-oxDvNvY", "Sohag Chand Bodoni": "evvHhFngeQc", "Holud Bato Mendi Bato": "jshhNOfoZdY", "Milon Hobe Koto Dine": "Br0G14hbASg", "Tomay Hrid Majhare Rakhbo": "DXx9gMpj9k0", "Ek Do Teen": "JzFemLoFkN4", "Hawa Hawai": "bYk-bX-kGl8", "Pehla Nasha": "iSUK1QoK9-E", "Didi Tera Devar Deewana": "HttdS70G_3o", "Tujhe Dekha To": "_hKJEqxn_OU", "Chaiyya Chaiyya": "9MX-QejdVaQ", "Bole Chudiyan": "k8Yn6c7k7Qw", "Kal Ho Naa Ho": "WAmoNT1EoUw", "Kajra Re": "tGv6Ce9mMWA", "Mauja Hi Mauja": "aPHsp9X2mBE", "Desi Girl": "GIBFSXTyrUo", "Tujh Mein Rab Dikhta Hai": "Vq8lbcb0Lcw", "Jai Ho": "xwwAVRyNmgQ", "Sheila Ki Jawani": "wNGZXBd2NhY", "Señorita": "2Z0Put0teCM", "Badtameez Dil": "vbTkIlPCsgs", "Balam Pichkari": "q8XvnGedq-U", "Tum Hi Ho": "81qmmlsIE3k", "Lungi Dance": "fbwCgt1hMD4", "Nagada Sang Dhol": "BmWkUAU1ktk", "London Thumakda": "N5bELC8MXeU", "Gallan Goodiyaan": "T577v-kISIU", "Gerua": "tovjBcC8w_k", "Kala Chashma": "4WRJHbL4dAk", "Channa Mereya": "jglVv0JfZUc", "Raataan Lambiyan": "orYf6VDtj_k", "Kesariya": "6RdS6wLu7RY", "Jhoome Jo Pathaan": "dzKSxDEAMDY", "What Jhumka?": "yBYbfMeJvHA", "Chaleya": "wr9M-CoxP7A"};
+const player=new Audio();let previews=null,playingId=null,mode=null,isPlaying=false,ytPlayer=null,ytReady=false,pendingYT=null;
+async function loadPreviews(){
+  if(previews)return previews;
+  const key=Object.values(ITUNES).join(',');const c=S.get('previews',null);if(c&&c.key===key&&Date.now()-c.at<6*3600e3){previews=c.map;return previews}
+  try{const j=await (await fetch('https://itunes.apple.com/lookup?id='+Object.values(ITUNES).join(',')+'&country=IN')).json();
+    const byId={};j.results.forEach(r=>{if(r.previewUrl)byId[r.trackId]=r.previewUrl});
+    previews={};for(const [t,id] of Object.entries(ITUNES))if(byId[id])previews[t]=byId[id];
+    S.set('previews',{at:Date.now(),key,map:previews});}catch(e){previews=null}
+  return previews;
+}
+window.onYouTubeIframeAPIReady=function(){
+  ytPlayer=new YT_API.Player('yt',{width:'128',height:'72',playerVars:{playsinline:1,rel:0,modestbranding:1,controls:1},
+    events:{onReady:()=>{ytReady=true;if(pendingYT){const p=pendingYT;pendingYT=null;ytPlayer.loadVideoById(p)}},
+      onStateChange:e=>{if(mode!=='yt')return;isPlaying=(e.data===1||e.data===3);if(e.data===0){isPlaying=false}paintNP()},
+      onError:()=>{if(mode!=='yt')return;const t=playingTitle;stopAll(true);if(previews&&previews[t]){startClip(playingIdSave,t);$('#np-t').querySelector('small').textContent='Video blocked, playing 30-second clip'}}}});
+};
+const YT_API={get Player(){return window.YT.Player}};
+let playingTitle=null,playingIdSave=null;
+function label(){return (playingId[0]==='s'?'Bangla':'Bollywood')+' #'+playingId.slice(1)}
+function stopAll(keepId){try{player.pause()}catch(e){}try{ytPlayer&&ytReady&&ytPlayer.stopVideo()}catch(e){}isPlaying=false;if(!keepId){playingId=null;mode=null}}
+function startClip(id,t){mode='clip';playingId=id;playingTitle=t;player.src=previews[t];player.currentTime=0;player.play().catch(()=>{});$('#ytbox').classList.add('off');$('#np-t').firstChild.textContent='Playing '+label();$('#np-t').querySelector('small').textContent='30-second clip';paintNP()}
+function startYT(id,t){mode='yt';playingId=id;playingTitle=t;playingIdSave=id;$('#ytbox').classList.remove('off');$('#np-t').firstChild.textContent='Playing '+label();$('#np-t').querySelector('small').textContent='Full song from the start';
+  if(ytReady)ytPlayer.loadVideoById(YTID[t]);else pendingYT=YTID[t];isPlaying=true;paintNP()}
+function playSong(id,t){
+  if(playingId===id){togglePause();return}
+  stopAll();
+  if(YTID[t])startYT(id,t);else if(previews&&previews[t])startClip(id,t);
+}
+function togglePause(){
+  if(mode==='clip'){if(player.paused)player.play().catch(()=>{});else player.pause()}
+  else if(mode==='yt'&&ytReady){if(isPlaying)ytPlayer.pauseVideo();else ytPlayer.playVideo()}
+}
+function paintNP(){const np=$('#np');
+  document.querySelectorAll('.song').forEach(el=>el.classList.toggle('playing',el.dataset.id===playingId));
+  document.querySelectorAll('[data-play]').forEach(b=>{b.textContent=b.dataset.play===playingId?(isPlaying?'Pause':'Resume'):'Play'});
+  np.hidden=!playingId;$('#np-pp').textContent=isPlaying?'Pause':'Resume';}
+player.addEventListener('play',()=>{if(mode==='clip'){isPlaying=true;paintNP()}});
+player.addEventListener('pause',()=>{if(mode==='clip'){isPlaying=false;paintNP()}});
+player.addEventListener('ended',()=>{if(mode==='clip'){isPlaying=false;paintNP()}});
+$('#np-pp').addEventListener('click',togglePause);
+$('#np-ff').addEventListener('click',()=>{if(mode==='clip')player.currentTime=Math.min(player.duration||30,player.currentTime+5);else if(mode==='yt'&&ytReady)ytPlayer.seekTo(ytPlayer.getCurrentTime()+5,true)});
+$('#np-stop').addEventListener('click',()=>{stopAll();$('#ytbox').classList.add('off');paintNP()});
+let songDone=S.get('songDone',{}),songShown={};
+let pool=S.get('pool','bangla');
+function drawSongs(){
+  document.querySelectorAll('[data-pool]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pool===pool));
+  let n=0,h='';const pre=pool==='bangla'?'s':'h';
+  (pool==='bangla'?SONGS:BOLLY).forEach(([era,list])=>{
+    h+=`<div class="era">${esc(era)}</div><div class="list">`;
+    list.forEach(([t,hint])=>{n++;const id=pre+n;const shown=songShown[id];
+      const q=encodeURIComponent(t+' '+(hint.split('·')[0].includes('(')?hint.split('·')[0]:'')+' song');
+      h+=`<div class="song ${songDone[id]?'done':''}" data-id="${id}"><div class="num">${n}</div>
+      <div class="ans ${shown?'':'hid'}"><div class="t">${esc(t)}</div><div class="h">${esc(hint)}</div></div>
+      <div class="acts">${YTID[t]||(previews&&previews[t])?`<button class="btn pri" data-play="${id}" data-title="${esc(t)}">Play</button>`:`<a class="btn pri" href="https://www.youtube.com/results?search_query=${q}" target="_blank" rel="noopener">YouTube</a>`}
+      <button class="btn" data-rev="${id}">${shown?'Hide':'Reveal'}</button>
+      <button class="btn" data-done="${id}">${songDone[id]?'Undo':'Done'}</button></div></div>`});
+    h+='</div>';
+  });
+  $('#songs').innerHTML=h;
+}
+document.querySelectorAll('[data-pool]').forEach(b=>b.addEventListener('click',()=>{pool=b.dataset.pool;S.set('pool',pool);drawSongs();paintNP()}));
+$('#songs').addEventListener('click',e=>{const r=e.target.dataset.rev,d=e.target.dataset.done,pl=e.target.dataset.play;
+  if(pl){playSong(pl,e.target.dataset.title);return}
+  if(r){songShown[r]=!songShown[r];drawSongs();paintNP()}
+  if(d){songDone[d]=!songDone[d];S.set('songDone',songDone);drawSongs();paintNP()}});
+drawSongs();
+loadPreviews().then(()=>{drawSongs();paintNP()});
+
+/* Charades */
+const PILES={
+ film:{name:'Films',pts:'1 pt',cards:[
+  ['Sonar Kella'],['Hirak Rajar Deshe'],['Goopy Gyne Bagha Byne'],['Pather Panchali'],['Charulata'],['Nayak'],['Chander Pahar'],['Bhooter Bhabishyat'],['Bela Seshe'],['Praktan'],['Mishawr Rawhoshyo'],['Chokher Bali'],['Saptapadi'],['Autograph'],['Amanush'],
+  ['Devdas'],['Parineeta'],['Piku'],['Barfi!'],['Kahaani'],['Detective Byomkesh Bakshy'],['Lootera'],['Golmaal'],['Chupke Chupke'],['Anand']]},
+ khabar:{name:'Khabar & Biye',pts:'2 pts',cards:[
+  ['Phuchka'],['Kosha Mangsho'],['Ilish Bhapa'],['Jhalmuri'],['Mishti Doi'],['Telebhaja'],['Rosogolla'],['Luchi–Alur Dom'],['Chingri Malaikari'],['Biryani with aloo'],
+  ['Adda'],['Lyadh'],['Bhodrolok'],['Monkey cap'],['Dhunuchi naach'],
+  ['Shubho Drishti','Bride reveals her face from behind paan leaves'],['Gaye Holud','Turmeric ceremony'],['Sindoor Daan'],['Topor','The groom\'s headgear'],['Shankha-Pola'],['Bashor Ghor','Wedding night of games and songs'],['Ulu dhwani']]},
+ probad:{name:'Probad',pts:'3 pts',cards:[
+  ['Gachhe kanthal gonfe tel','Counting chickens before they hatch'],
+  ['Ek dhile dui pakhi','Two birds with one stone'],
+  ['Kana chheler naam Padmalochan','A blind boy named Lotus-eyed'],
+  ['Beraler bhagye shikey chhinre','A lucky windfall'],
+  ['Naachte na jaanle uthon banka','A bad dancer blames the floor'],
+  ['Jemon kukur temni mugur','Tit for tat'],
+  ['Ati lobhe tanti noshto','Greed ruins the weaver'],
+  ['Chor palale buddhi baare','Wise after the thief has run'],
+  ['Ulu bone mukto chhorano','Pearls before swine'],
+  ['Shaak diye maachh dhaka','Hiding fish under greens']]},
+};
+let used=S.get('used',{film:[],khabar:[],probad:[]}),pile=null,cur=null,hidden=false,tLeft=60,tInt=null;
+function drawPiles(){
+  $('#piles').innerHTML=Object.entries(PILES).map(([k,p])=>`<button class="pile" aria-pressed="${pile===k}" data-pile="${k}">${p.name}<small>${p.pts} · ${p.cards.length-used[k].length} left</small></button>`).join('');
+}
+function draw(){
+  if(!pile)return;const p=PILES[pile];
+  const avail=p.cards.map((c,i)=>i).filter(i=>!used[pile].includes(i));
+  if(!avail.length){$('#c-cat').textContent=p.name;$('#c-word').textContent='Pile finished';$('#c-mean').textContent='';$('#c-left').textContent='';return}
+  const i=avail[Math.floor(Math.random()*avail.length)];used[pile].push(i);S.set('used',used);cur=p.cards[i];
+  $('#c-cat').textContent=p.name+' · '+p.pts;$('#c-word').textContent=cur[0];$('#c-mean').textContent=cur[1]||'';
+  hidden=false;applyHide();resetTimer();drawPiles();
+  $('#c-left').textContent=(avail.length-1)+' cards left in this pile';
+}
+function applyHide(){$('#c-word').classList.toggle('hid',hidden);$('#c-mean').style.visibility=hidden?'hidden':'visible';$('#c-show').textContent=hidden?'Show card':'Hide card'}
+function fmt(s){return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}
+function resetTimer(){clearInterval(tInt);tInt=null;tLeft=60;$('#c-timer').textContent=fmt(60);$('#c-timer').classList.remove('low');$('#c-start').textContent='Start 60s'}
+$('#c-start').addEventListener('click',()=>{
+  if(tInt){clearInterval(tInt);tInt=null;$('#c-start').textContent='Resume';return}
+  if(tLeft<=0)resetTimer();
+  $('#c-start').textContent='Pause';
+  tInt=setInterval(()=>{tLeft--;$('#c-timer').textContent=fmt(Math.max(0,tLeft));$('#c-timer').classList.toggle('low',tLeft<=10);
+    if(tLeft<=0){clearInterval(tInt);tInt=null;$('#c-timer').textContent='Time!';$('#c-start').textContent='Restart';try{navigator.vibrate&&navigator.vibrate(400)}catch(e){}}},1000);
+});
+$('#c-show').addEventListener('click',()=>{hidden=!hidden;applyHide()});
+$('#c-next').addEventListener('click',draw);
+$('#piles').addEventListener('click',e=>{const b=e.target.closest('[data-pile]');if(!b)return;pile=b.dataset.pile;drawPiles();draw()});
+drawPiles();
+
+/* Quiz */
+const EXAMPLES=[{t:'What is Titir\'s full name?',a:'Shrabana',ex:true},{t:'What is Sayantan\'s favourite thing to argue about?',a:'(ask the family)',ex:true}];
+let quiz=S.get('quiz',null);if(!quiz)quiz=EXAMPLES.slice();let qShown={};
+function drawQuiz(){
+  if(!quiz.length){$('#q-list').innerHTML='<div class="empty">No questions yet. Add the first one above.</div>';return}
+  $('#q-list').innerHTML=quiz.map((q,i)=>`<div class="q"><div class="qt">${i+1}. ${esc(q.t)}${q.ex?'<span class="ex">example</span>':''}</div>
+   <div class="qa ${qShown[i]?'':'hid'}">${esc(q.a||'(no answer added)')}</div>
+   <div class="acts"><button class="btn" data-qr="${i}">${qShown[i]?'Hide':'Reveal'}</button><button class="btn" data-qd="${i}">Remove</button></div></div>`).join('');
+}
+$('#q-list').addEventListener('click',e=>{const r=e.target.dataset.qr,d=e.target.dataset.qd;
+  if(r!==undefined){qShown[r]=!qShown[r];drawQuiz()}
+  if(d!==undefined){quiz.splice(Number(d),1);qShown={};S.set('quiz',quiz);drawQuiz()}});
+$('#q-form').addEventListener('submit',e=>{e.preventDefault();const t=$('#q-text').value.trim(),a=$('#q-ans').value.trim();if(!t)return;
+  quiz.push({t,a});S.set('quiz',quiz);$('#q-text').value='';$('#q-ans').value='';drawQuiz();$('#q-text').focus()});
+drawQuiz();
+
+/* Start over: clears scores and every round's progress; keeps team count and quiz questions */
+function startOver(){
+  score=[0,0,0,0];S.set('scores',score);
+  stopAll();$('#ytbox').classList.add('off');
+  songDone={};S.set('songDone',songDone);songShown={};
+  used={film:[],khabar:[],probad:[]};S.set('used',used);pile=null;cur=null;resetTimer();hidden=false;applyHide();
+  $('#c-cat').textContent='Pick a pile';$('#c-word').textContent='—';$('#c-mean').textContent='';$('#c-left').textContent='';
+  qShown={};
+  drawScore();drawSongs();paintNP();drawPiles();drawQuiz();window.scrollTo(0,0);
+}
+/* Keep the phone screen on while hosting */
+let wake=null;
+async function keepAwake(){try{if('wakeLock' in navigator&&!wake&&document.visibilityState==='visible'){wake=await navigator.wakeLock.request('screen');wake.addEventListener('release',()=>{wake=null})}}catch(e){}}
+document.addEventListener('pointerdown',keepAwake,{passive:true});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')keepAwake()});
+</script>
+<script src="https://www.youtube.com/iframe_api"></script>
+
+</body>
+</html>
